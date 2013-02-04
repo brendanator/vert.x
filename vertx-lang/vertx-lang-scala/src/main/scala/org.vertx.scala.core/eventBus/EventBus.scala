@@ -14,23 +14,15 @@
  * limitations under the License.
  */
 package org.vertx.scala.core
+package eventbus
 
-import org.vertx.java.deploy.{Verticle => JVerticle}
-import org.vertx.java.core.{Handler =>JHandler }
+import org.vertx.java.core.eventbus.{EventBus => JEventBus}
 /**
- * author (Slim Ouertani)
+ * @author (Slim Ouertani)
  */
-case class Verticle(onStart: JVerticle => Any = _ => ())(onStop: JVerticle => Any = _ => ()) extends JVerticle {
-  override def start() {
-    onStart(this)
-  }
+case class EventBus (eventBus :  JEventBus) {
 
-  override def stop() {
-    onStop(this)
-  }
-  implicit def asHandler[T] (h  : T => Any)  : JHandler[T] = new JHandler[T]() {
-      override def handle(  e : T) {
-        h (e)
-      }
-   }
+def ! (path: String)=   (msg : String ) => {eventBus.send(path, msg) }
+def !!  (path : String) = ( msg :String)  => { eventBus.publish(path, msg) }
+
 }

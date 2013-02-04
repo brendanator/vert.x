@@ -17,11 +17,13 @@ package org.vertx.scala
 package deploy
 
 import org.vertx.java.deploy.{Verticle => JVerticle}
-
+import org.vertx.java.core.{Handler =>JHandler }
+import org.vertx.java.deploy.Container
 /**
- * @author (Slim Ouertani)
+ * author (Slim Ouertani)
  */
 case class Verticle(onStart: JVerticle => Any = _ => ())(onStop: JVerticle => Any = _ => ()) extends JVerticle {
+  
   override def start() {
     onStart(this)
   }
@@ -29,4 +31,12 @@ case class Verticle(onStart: JVerticle => Any = _ => ())(onStop: JVerticle => An
   override def stop() {
     onStop(this)
   }
+  implicit def asHandler[T] (h  : T => Any)  : JHandler[T] = new JHandler[T]() {
+      override def handle(  e : T) {
+        h (e)
+      }
+   }
+  implicit def withContainer = getContainer
+  implicit def withVertx     = getVertx 
+  implicit def withLogger = withContainer.getLogger
 }
