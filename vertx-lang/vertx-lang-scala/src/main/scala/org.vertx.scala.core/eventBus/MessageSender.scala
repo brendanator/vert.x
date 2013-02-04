@@ -14,20 +14,15 @@
  * limitations under the License.
  */
 package org.vertx.scala.core
-package http
+package eventbus
 
-
-
-import org.vertx.java.core.http.{HttpClientResponse => JHttpClientResponse }
-
-import org.vertx.java.core.http.{HttpClient => JHttpClient}
-import org.vertx.java.deploy.Verticle
+import org.vertx.java.core.eventbus.{EventBus => JEventBus}
 /**
- * author (Slim Ouertani)
+ * @author (Slim Ouertani)
  */
-case class HttpClient(client : JHttpClient) (implicit verticle : Option[Verticle]=None)  {
-  def andGetNow (path:String)(h:JHttpClientResponse => Any) = {
-    client.getNow(path, h)
-  }
+case class MessageSender[T] (h : T => Any) {
+    def >> (msg : T) {
+      h(msg)
+    }
 
 }

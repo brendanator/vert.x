@@ -18,11 +18,14 @@ package org.vertx.scala
 
 import core.http.{HttpClient,HttpServer}
 import core.Handler
+import deploy.Verticle
+import core.eventbus.{EventBus, MessageSender}
 import org.vertx.java.core.{AsyncResult, AsyncResultHandler}
+import org.vertx.java.core.eventbus.{EventBus => JEventBus }
 import org.vertx.java.core.buffer.Buffer;
 import org.vertx.java.core.http.{ HttpServerRequest, ServerWebSocket}
 import org.vertx.java.core.{AsyncResult, AsyncResultHandler, Handler => JHandler}
-
+import org.vertx.java.core.logging. {Logger=>JLogger}
 
 import org.vertx.java.core.http.{HttpClient => JHttpClient, HttpServer => JHttpServer}
 import org.vertx.java.deploy.{Verticle => JVerticle}
@@ -41,4 +44,10 @@ package object core {
  
   implicit def toClient(client: JHttpClient)(implicit verticle : Option[JVerticle]=None) : HttpClient = HttpClient(client)
   implicit def toServer(server : JHttpServer)(implicit verticle : Option[JVerticle]=None) : HttpServer = HttpServer(server)
+  implicit def toEventBus(eventBus : JEventBus) : EventBus =   EventBus(eventBus)
+  
+  implicit def fromVerticleToEventBus(verticle: JVerticle) : EventBus = verticle.getVertx.eventBus
+  implicit def fromVerticleToLogger(verticle: JVerticle) :JLogger  = verticle.getContainer.getLogger
+  
+  implicit def toMessageSender[T] (h : T => Any) :MessageSender [T]= MessageSender(h)
 }
