@@ -16,38 +16,64 @@
 package org.vertx.scala 
 
 
-import core.http.{HttpClient,HttpServer}
+import core.http.{HttpClient,HttpServer, HttpServerRequest, RouteMatcher}
 import core.Handler
+import core.buffer.Encoding
+import core.rest.Action
 import deploy.Verticle
-import core.eventbus.{EventBus, MessageSender}
+import core.json.JsonObject 
+import core.eventBus.{EventBus, MessageSender}
 import org.vertx.java.core.{AsyncResult, AsyncResultHandler}
 import org.vertx.java.core.eventbus.{EventBus => JEventBus }
-import org.vertx.java.core.buffer.Buffer;
-import org.vertx.java.core.http.{ HttpServerRequest, ServerWebSocket}
+import org.vertx.java.core.buffer.Buffer
+import org.vertx.java.core.http.{  ServerWebSocket}
 import org.vertx.java.core.{AsyncResult, AsyncResultHandler, Handler => JHandler}
 import org.vertx.java.core.logging. {Logger=>JLogger}
 
-import org.vertx.java.core.http.{HttpClient => JHttpClient, HttpServer => JHttpServer}
+import org.vertx.java.core.http.{HttpClient => JHttpClient,
+                                 HttpServer => JHttpServer,
+                                 HttpServerRequest => JHttpServerRequest,
+                                 RouteMatcher =>JRouteMatcher }
 import org.vertx.java.deploy.{Verticle => JVerticle}
+import org.vertx.java.core.json.{JsonObject => JJsonObject}
+
+import scala.util.matching.Regex
 
 /**
  * @author (Slim Ouertani)
  */
 package object core {
+  
+  
   implicit def toHandler[T] (h  : T => Any)(implicit verticle:Option[JVerticle]=None)  : Handler[T] = new JHandler[T]() {
     override def handle( e : T) { h (e)}
   }
   implicit def toHandler[T](handler : JHandler[T])(implicit verticle : Option[JVerticle]=None)  : Handler[T]=  new Handler[T] (){
     override def handle( e : T) { handler.handle(e)}
   }
+  implicit def toHandler[T](matcher : RouteMatcher):JHandler[JHttpServerRequest] = matcher.jMatcher
   
  
   implicit def toClient(client: JHttpClient)(implicit verticle : Option[JVerticle]=None) : HttpClient = HttpClient(client)
   implicit def toServer(server : JHttpServer)(implicit verticle : Option[JVerticle]=None) : HttpServer = HttpServer(server)
   implicit def toEventBus(eventBus : JEventBus) : EventBus =   EventBus(eventBus)
+  implicit def toHttpServerRequest(request : JHttpServerRequest) : HttpServerRequest =  HttpServerRequest(request)
+  implicit def toRouteMatcher(routeMatcher : JRouteMatcher) : RouteMatcher = RouteMatcher(routeMatcher)
+  implicit def toJsonObject(jObject : JJsonObject) : JsonObject = JsonObject(jObject)
   
   implicit def fromVerticleToEventBus(verticle: JVerticle) : EventBus = verticle.getVertx.eventBus
   implicit def fromVerticleToLogger(verticle: JVerticle) :JLogger  = verticle.getContainer.getLogger
   
   implicit def toMessageSender[T] (h : T => Any) :MessageSender [T]= MessageSender(h)
+
+  implicit def toStringConvertor(msg : String )(implicit enc:Encoding= Encoding( "UTF-8")) :Buffer =new Buffer(msg,enc.enc)
+ 
+  
+  
+  
+  
+  
+  
+  
+  
 }

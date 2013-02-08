@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 package org.vertx.scala.core
-package eventbus
+package eventBus
 
 import org.vertx.java.core.eventbus.{EventBus => JEventBus}
 /**

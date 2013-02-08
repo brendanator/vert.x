@@ -13,16 +13,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.vertx.scala.core
-package eventbus
+package org.vertx.scala
+package core.rest
+import core.Handler
+import org.vertx.java.core.http. {HttpServerRequest => JHttpServerRequest, RouteMatcher =>JRouteMatcher}
 
-import org.vertx.java.core.eventbus.{EventBus => JEventBus}
 /**
  * @author (Slim Ouertani)
  */
-case class MessageSender[T] (h : T => Any) {
-    def >> (msg : T) {
-      h(msg)
-    }
+ sealed trait Action  {
+   def :>(handler : Handler[JHttpServerRequest]):List[(Action,Handler[JHttpServerRequest])] = List((this, handler))
+ } 
+ case class GET(pattern : String)  extends Action 
+ case class POST (pattern : String)  extends Action
+ case class PUT (pattern : String)  extends Action
+ case class DELETE(pattern : String)  extends Action
+ case class HEAD (pattern : String)  extends Action
+ case class ALL(pattern : String)  extends Action
 
-}
+
